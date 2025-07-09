@@ -75,8 +75,6 @@ void deposit(float &bankBalance){
 
     float depositAmount = holds_alternative<float>(valDeposit) ? get<float>(valDeposit) : 0;
 
-    cout << endl << depositAmount << endl;
-
     bankBalance += depositAmount;
 
     cout << endl << "Deposited successfully!" << endl;
@@ -90,16 +88,12 @@ void withdraw(float &bankBalance){
     
     verifyInputValid(valWithdraw);
 
-    if(holds_alternative<float>(valWithdraw)){
-        float withdrawAmount = get<float>(valWithdraw);
+    float withdrawAmount = holds_alternative<float>(valWithdraw) ? get<float>(valWithdraw) : 0;
 
-        while(withdrawAmount < 0){
-            cout << endl << "Please enter a number positive: ";
-            valWithdraw = getUserInput();
-            withdrawAmount = get<float>(valWithdraw);
+    bankBalance -= withdrawAmount;
 
-        }
-    }
+    cout << endl << "Withdrawn successfully!" << endl;
+    cout << endl << "New balance: " << bankBalance << endl;
 }
 
 namespace DVariable{
