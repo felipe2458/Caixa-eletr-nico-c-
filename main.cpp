@@ -21,48 +21,84 @@ variant<string, float> getUserInput(){
     return enter;
 }
 
+void verifyInputValid(variant<string, float> &val){
+    bool valValid = false;
+
+    do{
+        while(holds_alternative<string>(val) && get<string>(val).empty()){
+            cout << endl << "If you want to exit, type 'exit'" << endl;
+            cout << endl << "Please enter a valid number: ";
+            val = getUserInput();
+        }
+
+        string inputSt = holds_alternative<string>(val) ? get<string>(val) : "";
+        float inputInt = holds_alternative<float>(val) ? get<float>(val) : 0;
+
+
+        for(char& c : inputSt) c = tolower(c);
+
+        while(holds_alternative<string>(val) && inputSt != "exit"){
+            cout << endl << "If you want to exit, type 'exit'" << endl;
+            cout << endl << "Please enter a valid number: ";
+
+            val = getUserInput();
+            inputSt = holds_alternative<string>(val) ? get<string>(val) : "";
+            inputInt = holds_alternative<float>(val) ? get<float>(val) : 0;
+        }
+
+        while(holds_alternative<float>(val) && inputInt < 0){
+            cout << endl << "If you want to exit, type 'exit'" << endl;
+            cout << endl << "Please enter a number positive: ";
+
+            val = getUserInput();
+            inputInt = holds_alternative<float>(val) ? get<float>(val) : 0;
+            inputSt = holds_alternative<string>(val) ? get<string>(val) : "";
+        }
+
+        if(holds_alternative<float>(val) && inputInt > 0){
+            valValid = true;
+        }
+
+        if(inputSt == "exit"){
+            break;
+            return;
+        }
+    }while(!valValid);
+}
+
 void deposit(float &bankBalance){
     cout << endl << "Enter the amount you wish to deposit: ";
 
     variant<string, float> valDeposit = getUserInput();
 
-    while(holds_alternative<string>(valDeposit) && get<string>(valDeposit).empty()){
-        cout << endl << "If you want to exit, type 'exit'" << endl;
-        cout << endl << "Please enter a valid number: ";
-        valDeposit = getUserInput();
-    }
+    verifyInputValid(valDeposit);
 
-    string input = holds_alternative<string>(valDeposit) ? get<string>(valDeposit) : "";
+    float depositAmount = holds_alternative<float>(valDeposit) ? get<float>(valDeposit) : 0;
 
-    for(char& c : input) c = tolower(c);
+    cout << endl << depositAmount << endl;
 
-    while(holds_alternative<string>(valDeposit) && input != "exit"){
-        cout << endl << "If you want to exit, type 'exit'" << endl;
-        cout << endl << "Please enter a valid number: ";
+    bankBalance += depositAmount;
 
-        valDeposit = getUserInput();
-        input = get<string>(valDeposit);
-    }
+    cout << endl << "Deposited successfully!" << endl;
+    cout << endl << "New balance: " << bankBalance << endl;
+}
 
-    if(input == "exit"){
-        return;
-    }
+void withdraw(float &bankBalance){
+    cout << endl << "enter the amount you wish to withdraw: ";
 
-    if(holds_alternative<float>(valDeposit)){
-        float depositAmount = get<float>(valDeposit);
+    variant<string, float> valWithdraw = getUserInput();
+    
+    verifyInputValid(valWithdraw);
 
-        if(depositAmount < 0){
-            cout << endl << "If you want to withdraw an amount, type 'exit' and then type 3." << endl;
-            valDeposit = getUserInput();
+    if(holds_alternative<float>(valWithdraw)){
+        float withdrawAmount = get<float>(valWithdraw);
 
-            return;
+        while(withdrawAmount < 0){
+            cout << endl << "Please enter a number positive: ";
+            valWithdraw = getUserInput();
+            withdrawAmount = get<float>(valWithdraw);
+
         }
-
-        bankBalance += depositAmount;
-
-        cout << endl << "Deposited successfully!" << endl;
-        cout << endl << "New balance: " << bankBalance << endl;
-        return;
     }
 }
 
@@ -76,9 +112,6 @@ int main(){
 
     int optSelec;
 
-    //* Variable to check if the user who withdraws money with a negative balance
-    float pauseBankBalence;
-
     char exit = 'n';
 
     bool BBIsPositive = true;
@@ -90,7 +123,6 @@ int main(){
 
         cout << endl << "=== ATM ===" << endl << endl;
 
-        //* Check if the user has a negative balance. If so, remove item number 3 (compound interest)
         for(int i = 0; i < sizeof(options) / sizeof(options[0]); i++){
             if(BBIsPositive && i == 3){
                 cout << "";
@@ -125,6 +157,9 @@ int main(){
                 continue;
             case 2:
                 deposit(bankBalance);
+                continue;
+            case 3:
+                withdraw(bankBalance);
                 continue;
         }
     }while(exit == 'n');
